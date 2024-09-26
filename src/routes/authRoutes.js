@@ -44,7 +44,7 @@ router.post("/api/auth/login", async (req, res) => {
 
   try {
     // Find user by username
-    const user = await User.findOne({ username });
+    const user = await user.findOne({ username });
     if (!user) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
