@@ -1,16 +1,19 @@
 import mongoose from "mongoose";
 
 const UserSchema = new mongoose.Schema({
-  username: {
-    type: String,
-    required: true,
-    unique: true,
+  username: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  userStats: {
+    highestWPM: { type: Number, default: "" },
+    averageWPM: { type: Number, default: "" },
+    averageAccuracy: { type: Number, default: "" },
+    ranking: { type: Number, default: 1 },
   },
-  password: {
-    type: String,
-    required: true,
+  gameStats: {
+    gamesPlayed: { type: Number, default: "" },
+    gamesWon: { type: Number, default: "" },
+    gamesLost: { type: Number, default: "" },
   },
-  //TODO: complete the schema//include user stats
 });
 
 const User = mongoose.model("User", UserSchema);

@@ -31,19 +31,19 @@ export const createGame = async (req, res) => {
     }
 
     const newGameId = uuidv4();
-    console.log(newGameId, "created uuid");
+    const newParticipant = [{ userId: userId, username: username }];
+    console.log("generated GameId:", newGameId);
 
     const newGame = new Game({
       gameId: newGameId,
       gameStatus: "open",
+      participants: newParticipant,
       /*       results: [], */
     });
 
     // Save the game in the database and check for errors
     const savedGame = await newGame.save();
     console.log("Game saved successfully:", savedGame);
-
-    console.log(`Game created with ID: ${newGame.gameId} by user: ${username}`);
 
     return res.status(201).json({ success: true, data: newGame });
   } catch (error) {
