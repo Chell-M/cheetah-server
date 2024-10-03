@@ -6,15 +6,17 @@ const gameSchema = new mongoose.Schema({
     {
       userId: { type: String, required: true },
       username: { type: String, required: true },
+      _id: false,
     },
   ],
   status: {
     type: String,
     enum: ["open", "full", "completed"],
     default: "open",
+    _id: false,
   }, // Game status
   createdAt: { type: Date, default: Date.now },
-  /*   winner: { userId: String }, */
+  result: { userId: String },
 });
 
 const Game = mongoose.model("Game", gameSchema);

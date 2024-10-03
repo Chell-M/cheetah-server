@@ -23,13 +23,6 @@ export const createGame = async (req, res) => {
 
     console.log("Received request to create game:", { userId, username });
 
-    if (!userId || !username) {
-      console.error("Invalid user data:", { userId, username });
-      return res
-        .status(400)
-        .json({ message: "Invalid user ID, user must have account" });
-    }
-
     const newGameId = uuidv4();
     const newParticipant = [{ userId: userId, username: username }];
     console.log("generated GameId:", newGameId);
