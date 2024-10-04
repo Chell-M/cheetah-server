@@ -1,22 +1,6 @@
 import Game from "../models/Game.js";
 import { v4 as uuidv4 } from "uuid";
 
-/* export const searchOpenGame = async (req, res) => {
-  try {
-    const openGame = await Game.findOne({ status: "open" });
-
-    if (openGame) {
-      res.status(200).json(openGame);
-    } else {
-      res.status(404).json({ message: "No open game found" });
-    }
-  } catch (error) {
-    res.status(500).json({ message: "Server error" });
-  }
-
-  console.log(searchOpenGame, "search open game");
-}; */
-
 export const createGame = async (req, res) => {
   try {
     const { userId, username } = req.body;
@@ -24,13 +8,13 @@ export const createGame = async (req, res) => {
     console.log("Received request to create game:", { userId, username });
 
     const newGameId = uuidv4();
-    const newParticipant = [{ userId: userId, username: username }];
+    const addParticipant = [{ userId: userId, username: username }];
     console.log("generated GameId:", newGameId);
 
     const newGame = new Game({
       gameId: newGameId,
-      gameStatus: "open",
-      participants: newParticipant,
+      status: "open",
+      participants: addParticipant,
       /*       results: [], */
     });
 
@@ -45,39 +29,3 @@ export const createGame = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
-
-/* // Join an existing game
-export const joinGame = async (req, res) => {
-  try {
-    const { gameId, userId } = req.body;
-
-    // Fetch the user's username
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(400).json({ message: "Invalid user ID" });
-    }
-
-    const game = await Game.findOne({ gameId });
-
-    if (!game) {
-      return res.status(404).json({ message: "Game not found" });
-    }
-
-    if (game.participants.length >= 2) {
-      return res.status(400).json({ message: "Game is full" });
-    }
-
-    game.participants.push({ userId: user._id, username: user.username });
-
-    console.log(searchOpenGame, "search open game");
-
-    if (game.participants.length === 2) {
-      game.status = "full"; // Set the status to 'full' when 2 players join
-    }
-
-    await game.save();
-    return res.status(200).json(game);
-  } catch (error) {
-    return res.status(500).json({ message: "Server error" });
-  }
-}; */
