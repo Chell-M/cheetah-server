@@ -70,7 +70,7 @@ export const addParticipant = async (req, res) => {
 export const createGame = async (req, res) => {
   try {
     const { userId, username } = req.body;
-    console.log(`Creating new game. User ID: ${userId}, Username: ${username}`);
+    console.log("Creating new game");
 
     const newGameId = uuidv4();
     console.log("Generated new game ID:", newGameId);

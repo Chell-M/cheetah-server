@@ -1,3 +1,5 @@
+import Game from "../models/Game.js";
+
 export const socketHandler = (io) => {
   io.on("connection", (socket) => {
     console.log(`User connected: ${socket.id}`);
@@ -16,7 +18,10 @@ export const socketHandler = (io) => {
       console.log(`User ${socket.userId} joined game room: ${gameId}`);
 
       io.in(gameId).emit("userJoined", { userId: socket.id });
-      console.log("emitting userJoined");
+      // Emit game update right after a new user joins
+      Game.findOne({ gameId }).then((game) => {
+        io.in(gameId).emit("gameUpdated", game);
+      });
     });
 
     // Emit game updates to all users in the room
