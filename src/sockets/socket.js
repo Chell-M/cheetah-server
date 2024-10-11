@@ -27,7 +27,7 @@ export const socketHandler = (io) => {
     // Emit game updates to all users in the room
     socket.on("gameUpdated", (gameData) => {
       io.in(gameData.gameId).emit("gameUpdated", gameData);
-      console.log("gameUPdated");
+      console.log("gameUpdated");
     });
 
     socket.on("disconnect", () => {
