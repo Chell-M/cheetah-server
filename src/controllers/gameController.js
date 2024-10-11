@@ -17,6 +17,15 @@ export const addParticipant = async (req, res) => {
   const { gameId } = req.params;
   const { userId, username } = req.body;
 
+  const updateGameStatus = (game) => {
+    if (game.participants.length >= 2) {
+      game.status = "full";
+    } else {
+      game.status = "open";
+    }
+    return game;
+  };
+
   try {
     console.log(
       `Adding participant to game. Game ID: ${gameId}, User ID: ${userId}, Username: ${username}`,
@@ -46,12 +55,9 @@ export const addParticipant = async (req, res) => {
     console.log("Adding new participant:", participant);
     game.participants.push(participant);
 
-    if (game.participants.length >= 2) {
-      game.status = "full";
-      console.log("Game status updated to 'full'");
-    }
+    const updatedGame = updateGameStatus(game);
 
-    await game.save();
+    await updatedGame.save();
     console.log("Game updated successfully:", game);
 
     res.status(200).json({ success: true, data: game });
@@ -64,7 +70,7 @@ export const addParticipant = async (req, res) => {
 export const createGame = async (req, res) => {
   try {
     const { userId, username } = req.body;
-    console.log(`Creating new game. User ID: ${userId}, Username: ${username}`);
+    console.log("Creating new game");
 
     const newGameId = uuidv4();
     console.log("Generated new game ID:", newGameId);
@@ -77,6 +83,7 @@ export const createGame = async (req, res) => {
     });
 
     const savedGame = await newGame.save();
+
     console.log("Game saved successfully:", savedGame);
 
     return res.status(201).json({ success: true, data: savedGame });
