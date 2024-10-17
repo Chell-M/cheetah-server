@@ -1,17 +1,33 @@
-import Game from "../models/Game.js";
-
+// src/sockets/socket.js
 export const socketHandler = (io) => {
   io.on("connection", (socket) => {
-    console.log(`User connected: ${socket.id}`);
+    console.log("New client connected:", socket.id);
 
-    // Listen for the joinGame event
-    socket.on("connectUser", ({ userId }) => {
-      socket.userId = userId;
-      let socketId = socket.id;
-      console.log(`User ${userId} connected with socketId: ${socketId}`);
+    // When a user joins a game room
+    socket.on("joinGame", ({ gameId, userId }) => {
+      console.log(`User ${userId} attempting to join game: ${gameId}`);
+      socket.join(gameId);
+
+      // Check how many users are in the room
+      const clients = io.sockets.adapter.rooms.get(gameId);
+      if (clients && clients.size === 2) {
+        console.log(`Both users are in game: ${gameId}. Starting game...`);
+        io.in(gameId).emit("startGame", { gameId });
+      }
     });
 
-    // When a user joins a game
+    // Handle user disconnect
+    socket.on("disconnect", () => {
+      console.log("Client disconnected:", socket.id);
+    });
+  });
+};
+/* export const socketHandler = (io) => {
+/* io.on("connection", (socket) => {
+    console.log(`User connected: ${socket.id}`);
+  });
+}; */
+/* // When a user joins a game
     socket.on("joinGameRoom", ({ gameId }) => {
       socket.roomId = gameId;
       socket.join(gameId); // Join the WebSocket room for the game
@@ -23,8 +39,8 @@ export const socketHandler = (io) => {
         io.in(gameId).emit("gameUpdated", game);
       });
     });
-
-    // Emit game updates to all users in the room
+*/
+/* // Emit game updates to all users in the room
     socket.on("gameUpdated", (gameData) => {
       io.in(gameData.gameId).emit("gameUpdated", gameData);
       console.log("gameUpdated");
@@ -34,4 +50,4 @@ export const socketHandler = (io) => {
       console.log(`User ${socket.userId} disconnected`);
     });
   });
-};
+}; */
