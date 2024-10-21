@@ -1,4 +1,4 @@
-export const socketHandler = (io) => {
+/* export const socketHandler = (io) => {
   io.on("connection", (socket) => {
     console.log("New client connected:", socket.id);
 
@@ -20,7 +20,7 @@ export const socketHandler = (io) => {
             .emit("updateOpponentsCursor", { userId, cursorIndex });
         });
 */
-      }
+/* }
 
       // Emit participantJoined event to all clients in the room
       io.in(gameId).emit("participantJoined", {
@@ -40,4 +40,4 @@ export const socketHandler = (io) => {
       console.log("Client disconnected:", socket.id);
     });
   });
-};
+}; */
