@@ -1,37 +1,43 @@
-import Game from "../models/Game.js";
-
-export const socketHandler = (io) => {
+/* export const socketHandler = (io) => {
   io.on("connection", (socket) => {
-    console.log(`User connected: ${socket.id}`);
+    console.log("New client connected:", socket.id);
 
-    // Listen for the joinGame event
-    socket.on("connectUser", ({ userId }) => {
-      socket.userId = userId;
-      let socketId = socket.id;
-      console.log(`User ${userId} connected with socketId: ${socketId}`);
-    });
+    // When a user joins a game room
+    socket.on("joinGame", ({ gameId, userId }) => {
+      console.log(`User ${userId} attempting to join game: ${gameId}`);
+      socket.join(gameId);
 
-    // When a user joins a game
-    socket.on("joinGameRoom", ({ gameId }) => {
-      socket.roomId = gameId;
-      socket.join(gameId); // Join the WebSocket room for the game
-      console.log(`User ${socket.userId} joined game room: ${gameId}`);
+      const clients = io.sockets.adapter.rooms.get(gameId);
 
-      io.in(gameId).emit("userJoined", { userId: socket.id });
-      // Emit game update right after a new user joins
-      Game.findOne({ gameId }).then((game) => {
-        io.in(gameId).emit("gameUpdated", game);
+      if (clients && clients.size === 2) {
+        console.log(`Both users are in game: ${gameId}. starting game...`);
+        io.in(gameId).emit("startGame", { gameId });
+
+        // Listen for cursor updates and broadcast to the other user
+        /* socket.on("cursorUpdate", ({ gameId, userId, cursorIndex }) => {
+          socket
+            .to(gameId)
+            .emit("updateOpponentsCursor", { userId, cursorIndex });
+        });
+*/
+/* }
+
+      // Emit participantJoined event to all clients in the room
+      io.in(gameId).emit("participantJoined", {
+        gameId,
+        participants: Array.from(clients).map((clientId) => {
+          const clientSocket = io.sockets.sockets.get(clientId);
+          return {
+            userId: clientSocket.userId,
+            username: clientSocket.username,
+          };
+        }),
       });
     });
 
-    // Emit game updates to all users in the room
-    socket.on("gameUpdated", (gameData) => {
-      io.in(gameData.gameId).emit("gameUpdated", gameData);
-      console.log("gameUpdated");
-    });
-
+    // Handle user disconnect
     socket.on("disconnect", () => {
-      console.log(`User ${socket.userId} disconnected`);
+      console.log("Client disconnected:", socket.id);
     });
   });
-};
+}; */
