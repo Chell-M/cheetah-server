@@ -1,5 +1,5 @@
 import { findOrCreateGame } from "../services/gameService.js";
-import Game from "../models/Game.js"; // Ensure you have access to the Game model
+import redisClient from "../config/redisClient.js";
 
 export const socketHandler = (io) => {
   io.on("connection", (socket) => {
@@ -13,23 +13,19 @@ export const socketHandler = (io) => {
         }
 
         // Add user to the game
-        const updatedGameId = await findOrCreateGame(userId, gameId);
+        const { gameId: updatedGameId, participants } = await findOrCreateGame(
+          userId,
+          gameId
+        );
 
-        // Join the socket room
-        socket.join(updatedGameId);
-        console.log(`User ${userId} joined game ${updatedGameId}`);
-
-        // Fetch the updated game state
-        const game = await Game.findOne({ gameId: updatedGameId });
+        // // Join the socket room
+        // socket.join(updatedGameId);
+        // console.log(`User ${userId} joined game ${updatedGameId}`);
 
         // Emit the updated game state to all participants
         io.to(updatedGameId).emit("gameUpdate", {
           gameId: updatedGameId,
-          participants: game.participants.map(
-            (participant) => participant.userId
-          ),
-          status: game.status,
-          results: game.result,
+          participants: participants.map((participant) => participant.userId),
         });
       } catch (error) {
         socket.emit("error", {
@@ -37,6 +33,31 @@ export const socketHandler = (io) => {
           error: error.message,
         });
         console.error(`Error joining game ${gameId}:`, error.message);
+      }
+    });
+
+    // Event to get game data
+    socket.on("getGameData", async (gameId) => {
+      try {
+        const gameKey = `game:${gameId}`;
+        const gameData = await redisClient.hGetAll(gameKey);
+
+        if (Object.keys(gameData).length === 0) {
+          throw new Error("Game not found");
+        }
+
+        const participants = JSON.parse(gameData.participants);
+
+        socket.emit("gameData", {
+          gameId: gameData.gameId,
+          participants: participants.map((participant) => participant.userId),
+        });
+      } catch (error) {
+        console.error(
+          `Error retrieving game data for ${gameId}:`,
+          error.message
+        );
+        socket.emit("error", "Error retrieving game data");
       }
     });
 
