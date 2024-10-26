@@ -2,7 +2,6 @@ import redisClient from "../config/redisClient.js";
 
 export const findOrCreateGame = async (userId, gameId = "test-game-id") => {
   try {
-    // Set default gameId if not provided
     if (!gameId) {
       gameId = "test-game-id";
     }
