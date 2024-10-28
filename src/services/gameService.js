@@ -5,10 +5,8 @@ export const findOrCreateGame = async (userId, gameId = "test-game-id") => {
     if (!gameId) {
       gameId = "test-game-id";
     }
-
     const gameKey = `game:${gameId}`;
 
-    // Check if the game exists
     const gameExists = await redisClient.exists(gameKey);
 
     if (gameExists) {
@@ -31,7 +29,6 @@ export const findOrCreateGame = async (userId, gameId = "test-game-id") => {
 
       return { gameId, participants };
     } else {
-      // Create a new game
       const participants = [{ userId }];
       const game = {
         gameId,

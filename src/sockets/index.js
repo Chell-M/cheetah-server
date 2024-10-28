@@ -3,10 +3,11 @@ import redisClient from "../config/redisClient.js";
 
 export const socketHandler = (io) => {
   io.on("connection", (socket) => {
-    console.log("User connected:", socket.id);
+    console.log("User connected:", socket.id); //check 1
 
     socket.on("joinGame", async ({ gameId, userId }) => {
       try {
+        console.log(`joining Game: ${gameId}, userId: ${userId}`); //check 2
         if (!gameId || !userId) {
           throw new Error("Game ID and User ID must be provided");
         }
@@ -15,33 +16,34 @@ export const socketHandler = (io) => {
           gameId
         );
 
-        // Join the socket room
         socket.join(updatedGameId);
-        console.log(`User ${userId} joined game ${updatedGameId}`);
+        console.log(`User ${userId} joined game ${updatedGameId}`); //check 3
 
-        // Increment active connections
         await redisClient.hIncrBy(
           `game:${updatedGameId}`,
           "activeConnections",
           1
         );
 
-        // Emit the updated game state to all participants
         io.to(updatedGameId).emit("gameUpdate", {
           gameId: updatedGameId,
           participants: participants.map((participant) => participant.userId),
         });
+        console.log("Game state emitted to participants"); // check 4
 
-        // Check if there are two participants
         if (participants.length === 2) {
           console.log(
-            `Two participants connected for game ${updatedGameId}. Starting countdown.`
+            `2 users in Game${JSON.stringify(
+              gameId
+            )}, participants: ${JSON.stringify(
+              participants
+            )}. Starting countdown.` //check 5
           );
           setTimeout(() => {
             io.to(updatedGameId).emit("startRace", {
-              message: "Countdown over, start race!",
+              message: "countdown over, start race!",
             });
-          }, 5000); // 5-second countdown
+          }, 5000);
         }
       } catch (error) {
         socket.emit("error", {
@@ -52,30 +54,8 @@ export const socketHandler = (io) => {
       }
     });
 
-    // Event to get game data
-    socket.on("getGameData", async (gameId) => {
-      try {
-        const gameKey = `game:${gameId}`;
-        const gameData = await redisClient.hGetAll(gameKey);
-        if (Object.keys(gameData).length === 0) {
-          throw new Error("Game not found");
-        }
-        const participants = JSON.parse(gameData.participants);
-        socket.emit("gameData", {
-          gameId: gameData.gameId,
-          participants: participants.map((participant) => participant.userId),
-        });
-      } catch (error) {
-        console.error(
-          `Error retrieving game data for ${gameId}:`,
-          error.message
-        );
-        socket.emit("error", "Error retrieving game data");
-      }
-    });
-
     socket.on("disconnect", async () => {
-      console.log("User disconnected:", socket.id);
+      console.log("User disconnected: check ", socket.id);
     });
   });
 };
