@@ -29,7 +29,9 @@ export const socketHandler = (io) => {
           gameId: updatedGameId,
           participants: participants.map((participant) => participant.userId),
         });
+
         console.log("Game state emitted to participants"); // check 4
+        // Emit the new cursor position to the opponent
 
         if (participants.length === 2) {
           console.log(
@@ -52,6 +54,13 @@ export const socketHandler = (io) => {
         });
         console.error(`Error joining game ${gameId}:`, error.message);
       }
+    });
+
+    socket.on("cursorUpdate", ({ gameId, userId, cursorIndex }) => {
+      console.log(
+        `Cursor update for user ${userId}, gameId: ${gameId}: ${cursorIndex}`
+      );
+      socket.to(gameId).emit("opponentCursorUpdate", { cursorIndex });
     });
 
     socket.on("disconnect", async () => {
