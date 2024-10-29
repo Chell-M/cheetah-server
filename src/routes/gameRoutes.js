@@ -1,15 +1,8 @@
 import express from "express";
-
-import {
-  createGame,
-  addParticipant,
-  getOpenGames,
-} from "../controllers/gameController.js";
+import { initializeGame } from "../controllers/gameController.js";
 
 const router = express.Router();
 
-router.get("/openGames", getOpenGames);
-router.post("/createGame", createGame);
-router.post("/:gameId/addParticipant", addParticipant);
+router.post("/initialize", initializeGame);
 
 export default router;

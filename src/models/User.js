@@ -7,7 +7,6 @@ const UserSchema = new mongoose.Schema({
     highestWPM: { type: Number, default: "" },
     averageWPM: { type: Number, default: "" },
     averageAccuracy: { type: Number, default: "" },
-    ranking: { type: Number, default: "" },
   },
   gameStats: {
     gamesPlayed: { type: Number, default: "" },

@@ -5,16 +5,9 @@ const gameSchema = new mongoose.Schema({
   participants: [
     {
       userId: { type: String, required: true },
-      username: { type: String, required: true },
       _id: false,
     },
   ],
-  status: {
-    type: String,
-    enum: ["open", "full", "completed"],
-    default: "open",
-    _id: false,
-  }, // Game status
   createdAt: { type: Date, default: Date.now },
   result: { userId: String },
 });
