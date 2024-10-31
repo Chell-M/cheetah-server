@@ -30,22 +30,15 @@ export const socketHandler = (io) => {
           participants: participants.map((participant) => participant.userId),
         });
 
-        console.log("Game state emitted to participants"); // check 4
-        // Emit the new cursor position to the opponent
+        console.log("Game state emitted to participants");
 
         if (participants.length === 2) {
           console.log(
             `2 users in Game${JSON.stringify(
+              participants,
               gameId
-            )}, participants: ${JSON.stringify(
-              participants
-            )}. Starting countdown.` //check 5
+            )} Starting countdown.`
           );
-          setTimeout(() => {
-            io.to(updatedGameId).emit("startRace", {
-              message: "countdown over, start race!",
-            });
-          }, 5000);
         }
       } catch (error) {
         socket.emit("error", {
@@ -61,6 +54,29 @@ export const socketHandler = (io) => {
         `Cursor update for user ${userId}, gameId: ${gameId}: ${cursorIndex}`
       );
       socket.to(gameId).emit("opponentCursorUpdate", { cursorIndex });
+    });
+
+    socket.on("gameResults", async ({ gameId, results }) => {
+      console.log(`Game results for gameId: ${gameId}`, results);
+      try {
+        const gameKey = `game:${gameId}`;
+        let existingResults = await redisClient.hGet(gameKey, "results");
+        existingResults = existingResults ? JSON.parse(existingResults) : [];
+        existingResults.push(results);
+
+        await redisClient.hSet(
+          gameKey,
+          "results",
+          JSON.stringify(existingResults)
+        );
+
+        console.log(`Results for Game ${gameId} saved to Redis`);
+
+        // Emit the results to all participants
+        io.to(gameId).emit("gameResultsUpdate", existingResults);
+      } catch (error) {
+        console.error(`Error saving game results for GameID ${gameId}:`, error);
+      }
     });
 
     socket.on("disconnect", async () => {

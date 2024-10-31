@@ -5,8 +5,6 @@ import connectDB from "./src/config/db.js";
 import authRoutes from "./src/routes/authRoutes.js";
 import gameRoutes from "./src/routes/gameRoutes.js";
 import { socketHandler } from "./src/sockets/index.js";
-import redisClient from "./src/config/redisClient.js";
-
 import http from "http";
 import { Server } from "socket.io";
 
@@ -28,6 +26,7 @@ app.use(express.json());
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/game", gameRoutes); // Added game routes
+// app.use("/api/game/results", resultsRouter);
 
 // Create HTTP server and Socket.IO server
 const server = http.createServer(app);
