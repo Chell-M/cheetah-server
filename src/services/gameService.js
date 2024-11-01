@@ -6,13 +6,11 @@ export const findOrCreateGame = async (userId, gameId = "test-game-id") => {
       gameId = "test-game-id";
     }
     const gameKey = `game:${gameId}`;
-
     const gameExists = await redisClient.exists(gameKey);
 
     if (gameExists) {
       const gameData = await redisClient.hGetAll(gameKey);
       const participants = JSON.parse(gameData.participants);
-
       const isParticipant = participants.some(
         (participant) => participant.userId === userId
       );
@@ -34,9 +32,9 @@ export const findOrCreateGame = async (userId, gameId = "test-game-id") => {
         gameId,
         participants: JSON.stringify(participants),
       };
+
       await redisClient.hSet(gameKey, game);
       console.log(`New game created with ID: ${gameId} by user ${userId}`);
-
       return { gameId, participants };
     }
   } catch (error) {
