@@ -15,7 +15,6 @@ export const saveGameResultsToMongo = async (gameId, participants, results) => {
       console.log(`game data saved for gameId: ${gameId}`);
     }
 
-    // Update each participant's stats
     await updateUsersStats(results);
   } catch (error) {
     console.error(
@@ -33,7 +32,6 @@ export const updateUsersStats = async (results) => {
       if (user) {
         console.log(`User found. Updating stats for userId: ${user.id}`);
 
-        // Update highestWPM if the result WPM is higher
         if (result.wpm > user.userStats.highestWPM) {
           user.userStats.highestWPM = result.wpm;
         }

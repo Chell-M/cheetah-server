@@ -20,7 +20,6 @@ export const findOrCreateGame = async (userId, gameId = "test-game-id") => {
         await redisClient.hSet(gameKey, {
           participants: JSON.stringify(participants),
         });
-        console.log(`User (${userId}) joined game ${gameId}`);
       } else {
         console.log(`User (${userId}) is already in game ${gameId}`);
       }

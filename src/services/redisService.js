@@ -22,12 +22,17 @@ export const saveGameResults = async (gameId, results) => {
 
     await redisClient.hSet(gameKey, "results", JSON.stringify(existingResults));
 
-    // Fetch participants from Redis
+    const resultCount = await redisClient.hIncrBy(gameKey, "resultCount", 1);
+
     const gameData = await redisClient.hGetAll(gameKey);
     const participants = JSON.parse(gameData.participants);
 
-    // Save to MongoDB
-    await saveGameResultsToMongo(gameId, participants, existingResults);
+    if (resultCount === participants.length) {
+      setTimeout(async () => {
+        await saveGameResultsToMongo(gameId, participants, existingResults);
+        console.log(`Results for Game ${gameId} saved to MongoDB`);
+      }, 0); // Delay MongoDB save
+    }
 
     return existingResults;
   } catch (error) {
