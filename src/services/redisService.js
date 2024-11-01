@@ -1,4 +1,5 @@
 import redisClient from "../config/redisClient.js";
+import { saveGameResultsToMongo } from "./mongoService.js";
 
 export const incrementActiveConnections = async (gameId) => {
   try {
@@ -20,6 +21,14 @@ export const saveGameResults = async (gameId, results) => {
     existingResults.push(results);
 
     await redisClient.hSet(gameKey, "results", JSON.stringify(existingResults));
+
+    // Fetch participants from Redis
+    const gameData = await redisClient.hGetAll(gameKey);
+    const participants = JSON.parse(gameData.participants);
+
+    // Save to MongoDB
+    await saveGameResultsToMongo(gameId, participants, existingResults);
+
     return existingResults;
   } catch (error) {
     console.error(`Error saving game results for game ${gameId}:`, error);
