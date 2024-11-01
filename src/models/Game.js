@@ -9,7 +9,14 @@ const gameSchema = new mongoose.Schema({
     },
   ],
   createdAt: { type: Date, default: Date.now },
-  result: { userId: String },
+  results: [
+    {
+      userId: { type: String, required: true },
+      wpm: { type: Number, required: true },
+      accuracy: { type: Number, required: true },
+      isWinner: { type: Boolean, default: false },
+    },
+  ],
 });
 
 const Game = mongoose.model("Game", gameSchema);

@@ -24,7 +24,7 @@ const connectRedis = async () => {
 
 connectRedis();
 
-// Graceful shutdown
+// smooth shutdown
 const gracefulShutdown = async () => {
   try {
     await redisClient.quit();
