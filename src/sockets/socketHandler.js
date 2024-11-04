@@ -43,6 +43,13 @@ export const socketHandler = (io) => {
       }
     });
 
+    socket.on("cursorUpdate", ({ gameId, userId, cursorIndex }) => {
+      console.log(
+        `Cursor update for user ${userId}, gameId: ${gameId}: ${cursorIndex}`
+      );
+      socket.to(gameId).emit("opponentCursorUpdate", { cursorIndex });
+    });
+
     socket.on("gameResults", async ({ gameId, results }) => {
       console.log(`Game results for gameId: ${gameId}`, results);
       try {

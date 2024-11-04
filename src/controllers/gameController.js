@@ -6,7 +6,7 @@ export const initializeGame = async (req, res) => {
     if (!userId) {
       return res.status(400).json({ message: "User ID required" });
     }
-    const gameId = await findOrCreateGame(userId);
+    const { gameId } = await findOrCreateGame(userId);
     return res
       .status(200)
       .json({ gameId, message: "Game initialized successfully" });

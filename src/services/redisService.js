@@ -31,9 +31,12 @@ export const saveGameResults = async (gameId, results) => {
       setTimeout(async () => {
         await saveGameResultsToMongo(gameId, participants, existingResults);
         console.log(`Results for Game ${gameId} saved to MongoDB`);
-      }, 0); // Delay MongoDB save
-    }
+        // Reset the game state in Redis
 
+        await redisClient.del(gameKey);
+        console.log(`Redis key ${gameKey} deleted after MongoDB save`);
+      }, 0);
+    }
     return existingResults;
   } catch (error) {
     console.error(`Error saving game results for game ${gameId}:`, error);
