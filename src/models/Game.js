@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
 
 const gameSchema = new mongoose.Schema({
-  gameId: { type: String, required: true }, // Unique game ID
+  gameId: { type: String, required: true },
+
   participants: [
     {
       userId: { type: String, required: true },
@@ -17,6 +18,7 @@ const gameSchema = new mongoose.Schema({
       isWinner: { type: Boolean, default: false },
     },
   ],
+  status: { type: String, default: "open" },
 });
 
 const Game = mongoose.model("Game", gameSchema);

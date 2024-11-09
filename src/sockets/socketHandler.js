@@ -1,69 +1,55 @@
-import { findOrCreateGame } from "../services/gameService.js";
 import {
-  incrementActiveConnections,
-  saveGameResults,
-} from "../services/redisService.js";
+  getOpenGames,
+  createNewGame,
+  addUserToGameService,
+} from "../services/gameService.js";
 
-export const socketHandler = (io) => {
+const socketHandler = (io) => {
   io.on("connection", (socket) => {
+    const { userId } = socket.handshake.query;
     console.log("User connected:", socket.id);
 
-    socket.on("joinGame", async ({ gameId, userId }) => {
+    socket.on("joinGame", async ({ userId }) => {
       try {
-        console.log(`joining Game: ${gameId}, userId: ${userId}`);
-        if (!gameId || !userId) {
-          throw new Error("Game ID and User ID must be provided");
+        // Fetch open games
+        const openGames = await getOpenGames();
+        console.log("Open games:", openGames);
+        let game;
+
+        if (openGames.length === 0) {
+          // No open games found; create a new game
+          game = await createNewGame(userId);
+          console.log(`Created new game with ID: ${game.gameId}`);
+        } else {
+          // Join the first available open game
+          const gameId = openGames[0].gameId;
+          game = await addUserToGameService(gameId, userId);
+          console.log(`User ${userId} joined game ${game.gameId}`);
         }
-        const { gameId: updatedGameId, participants } = await findOrCreateGame(
-          userId,
-          gameId
-        );
 
-        socket.join(updatedGameId);
-        console.log(`User ${userId} joined game ${updatedGameId}`);
+        // Join the Socket.IO room based on `gameId`
+        socket.join(game.gameId);
 
-        await incrementActiveConnections(updatedGameId);
-
-        io.to(updatedGameId).emit("gameUpdate", {
-          gameId: updatedGameId,
-          participants: participants.map((participant) => participant.userId),
-        });
-
-        if (participants.length === 2) {
-          console.log(
-            `2 users in Game${JSON.stringify(participants)} Starting countdown.`
-          );
-        }
+        // Emit the updated game state to all participants
+        io.to(game.gameId).emit("updateGameState", game);
       } catch (error) {
+        console.error("Error handling join game:", error);
         socket.emit("error", {
-          message: "Failed to join game",
-          error: error.message,
+          message: error.message || "Failed to join game",
         });
-        console.error(`Error joining game ${gameId}:`, error.message);
       }
     });
 
     socket.on("cursorUpdate", ({ gameId, userId, cursorIndex }) => {
-      console.log(
-        `Cursor update for user ${userId}, gameId: ${gameId}: ${cursorIndex}`
-      );
-      socket.to(gameId).emit("opponentCursorUpdate", { cursorIndex });
+      socket.to(gameId).emit("cursorUpdate", { userId, cursorIndex });
     });
 
-    socket.on("gameResults", async ({ gameId, results }) => {
-      console.log(`Game results for gameId: ${gameId}`, results);
-      try {
-        const existingResults = await saveGameResults(gameId, results);
-        console.log(`Results for Game ${gameId} saved to Redis`);
-
-        io.to(gameId).emit("gameResultsUpdate", existingResults);
-      } catch (error) {
-        console.error(`Error saving game results for GameID ${gameId}:`, error);
-      }
+    socket.on("gameResults", ({ gameId, results }) => {
+      io.to(gameId).emit("gameResults", results);
     });
 
-    socket.on("disconnect", async () => {
-      console.log("User disconnected: check ", socket.id);
+    socket.on("disconnect", () => {
+      console.log("User disconnected:", socket.id);
     });
   });
 };
