@@ -29,6 +29,7 @@ const socketHandler = (io) => {
 
         // Join the Socket.IO room based on `gameId`
         socket.join(game.gameId);
+
         // Emit the updated game state to all participants
         io.to(game.gameId).emit("updateGameState", game);
       } catch (error) {
@@ -39,13 +40,16 @@ const socketHandler = (io) => {
       }
     });
 
-    socket.on("opponentCursor", ({ gameId, userId, cursorIndex }) => {
-      socket.to(gameId).emit("opponentCursor", { userId, cursorIndex });
+    socket.on("cursorUpdate", ({ gameId, userId, cursorIndex }) => {
+      socket.to(gameId).emit("cursorUpdate", { userId, cursorIndex });
+    });
+
+    socket.on("gameResults", ({ gameId, results }) => {
+      io.to(gameId).emit("gameResults", results);
     });
 
     socket.on("disconnect", () => {
       console.log("User disconnected:", socket.id);
-      // Handle disconnection logic if needed
     });
   });
 };
