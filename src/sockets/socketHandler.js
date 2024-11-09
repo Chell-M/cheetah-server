@@ -1,80 +1,51 @@
-import { v4 as uuidv4 } from "uuid";
-
 import {
-  getGameFromRedis,
-  saveGameToRedis,
-  addUserToGame,
-  updateGameStatusInRedis,
-} from "../services/redisService.js";
+  getOpenGames,
+  createNewGame,
+  addUserToGameService,
+} from "../services/gameService.js";
 
 const socketHandler = (io) => {
   io.on("connection", (socket) => {
+    const { userId } = socket.handshake.query;
     console.log("User connected:", socket.id);
 
     socket.on("joinGame", async ({ userId }) => {
-      console.log(`Received joinGame event for userId: ${userId}`);
       try {
-        // 1. Check for an available game
-        let game = await getGameFromRedis();
-        console.log("Checked for available game:", game);
+        // Fetch open games
+        const openGames = await getOpenGames();
+        console.log("Open games:", openGames);
+        let game;
 
-        if (!game) {
-          // 2. No open game found, so create a new game
-          const gameId = uuidv4();
-          game = { gameId, participants: [{ userId }], status: "waiting" };
-          await saveGameToRedis(game);
-          console.log(`Created new game with ID: ${gameId}`);
+        if (openGames.length === 0) {
+          // No open games found; create a new game
+          game = await createNewGame(userId);
+          console.log(`Created new game with ID: ${game.gameId}`);
         } else {
-          // 3. Open game found, so add the user to this game
-          game = await addUserToGame(game.gameId, userId);
-          console.log(`User ${userId} joined existing game ${game.gameId}`);
+          // Join the first available open game
+          const gameId = openGames[0].gameId;
+          game = await addUserToGameService(gameId, userId);
+          console.log(`User ${userId} joined game ${game.gameId}`);
         }
 
-        // 4. Join the user to the Socket.IO room based on `gameId`
+        // Join the Socket.IO room based on `gameId`
         socket.join(game.gameId);
-        console.log(`User ${userId} joined room for game ${game.gameId}`);
-
-        // 5. Notify all participants in the room with the updated game state
-        io.to(game.gameId).emit("gameUpdate", game);
-        console.log(`Emitted gameUpdate for game ${game.gameId}`);
-
-        // 6. If two participants have joined, start the game
-        if (game.participants.length === 2) {
-          game.status = "active";
-          await updateGameStatusInRedis(game.gameId, "active");
-          io.to(game.gameId).emit("startGame", game);
-          console.log(`Game ${game.gameId} started with 2 participants`);
-        }
+        // Emit the updated game state to all participants
+        io.to(game.gameId).emit("updateGameState", game);
       } catch (error) {
-        console.error("Error joining game:", error);
+        console.error("Error handling join game:", error);
         socket.emit("error", {
-          message: "Failed to join game",
-          error: error.message,
+          message: error.message || "Failed to join game",
         });
       }
     });
 
-    // Handler for cursor updates
-    socket.on("cursorUpdate", ({ gameId, userId, cursorIndex }) => {
-      console.log(
-        `Cursor update from user ${userId} in game ${gameId}: ${cursorIndex}`
-      );
-      socket.to(gameId).emit("opponentCursorUpdate", { userId, cursorIndex });
-      console.log(`Emitted opponentCursorUpdate for game ${gameId}`);
+    socket.on("opponentCursor", ({ gameId, userId, cursorIndex }) => {
+      socket.to(gameId).emit("opponentCursor", { userId, cursorIndex });
     });
 
-    // Handler for game results (e.g., end of the game)
-    socket.on("gameResults", async ({ gameId, results }) => {
-      console.log(`Game results for gameId: ${gameId}`, results);
-      io.to(gameId).emit("gameResultsUpdate", results);
-      console.log(`Emitted gameResultsUpdate for game ${gameId}`);
-      // Update Redis or perform additional cleanup if needed
-    });
-
-    // Handler for disconnections
-    socket.on("disconnect", async () => {
+    socket.on("disconnect", () => {
       console.log("User disconnected:", socket.id);
-      // Handle disconnection logic, e.g., update Redis, notify remaining participants
+      // Handle disconnection logic if needed
     });
   });
 };

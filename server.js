@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import connectDB from "./src/config/db.js";
 import authRoutes from "./src/routes/authRoutes.js";
-// import gameRoutes from "./src/routes/gameRoutes.js";
+import gameRoutes from "./src/routes/gameRoutes.js";
 import socketHandler from "./src/sockets/socketHandler.js";
 import http from "http";
 import { Server } from "socket.io";
@@ -24,7 +24,7 @@ connectDB();
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
-// app.use("/api/game", gameRoutes);
+app.use("/api/games", gameRoutes);
 
 const server = http.createServer(app);
 const io = new Server(server, {
