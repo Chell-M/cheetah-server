@@ -6,7 +6,6 @@ import {
 
 const socketHandler = (io) => {
   io.on("connection", (socket) => {
-    const { userId } = socket.handshake.query;
     console.log("User connected:", socket.id);
 
     socket.on("joinGame", async ({ userId }) => {
@@ -29,6 +28,10 @@ const socketHandler = (io) => {
 
         // Join the Socket.IO room based on `gameId`
         socket.join(game.gameId);
+        console.log(socket.rooms);
+        const room = io.sockets.adapter.rooms.get(game.gameId);
+        const numberOfClients = room ? room.size : 0;
+        console.log(`Number of clients in ${game.gameId} ${numberOfClients}`);
 
         // Emit the updated game state to all participants
         io.to(game.gameId).emit("updateGameState", game);
@@ -55,4 +58,3 @@ const socketHandler = (io) => {
 };
 
 export default socketHandler;
-
