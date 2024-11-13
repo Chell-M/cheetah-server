@@ -19,7 +19,6 @@ export const createNewGame = async (userId) => {
       participants: [{ userId }],
       status: "open",
     });
-
     await newGame.save();
     return newGame;
   } catch (error) {
@@ -31,17 +30,10 @@ export const createNewGame = async (userId) => {
 export const addUserToGameService = async (gameId, userId) => {
   try {
     const game = await Game.findOne({ gameId });
-
-    if (!game) {
-      throw new Error("Game not found");
-    }
-
     // Check if the game is already full
     if (game.participants.length >= 2) {
-      // Assuming a 2-player game
       throw new Error("Game is already full");
     }
-
     game.participants.push({ userId });
 
     if (game.participants.length === 2) {
@@ -53,6 +45,19 @@ export const addUserToGameService = async (gameId, userId) => {
     return game;
   } catch (error) {
     console.error("Error adding user to game:", error);
+    throw error;
+  }
+};
+
+export const getUserGame = async (userId) => {
+  try {
+    const game = await Game.findOne({ "participants.userId": userId });
+    if (!game) {
+      throw new Error("User is not in any game");
+    }
+    return game;
+  } catch (error) {
+    console.error("Error fetching user's game:", error);
     throw error;
   }
 };
