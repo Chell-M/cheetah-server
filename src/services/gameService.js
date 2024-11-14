@@ -10,7 +10,6 @@ export const getOpenGames = async () => {
     throw error;
   }
 };
-
 export const createNewGame = async (userId) => {
   try {
     const gameId = uuidv4();

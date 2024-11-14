@@ -1,9 +1,4 @@
-import { get } from "mongoose";
-import { getOpenGames, createNewGame, addUserToGameService, getUserGame } from "../services/gameService.js";
-
-// `fetchOpenGames` fetch games with status "open"
-//  `createNewGame` create new game object with user inside
-//   `addUserToGameService` if a game is open, push user in participants
+import { getOpenGames, createNewGame, addUserToGameService } from "../services/gameService.js";
 
 const socketHandler = (io) => {
   console.log("socketHandler initialized");
@@ -36,6 +31,7 @@ const socketHandler = (io) => {
 
         if (numberOfClients) {
           // Emit the updated game state to all participants
+          console.log(game.status, "GAME STATUS");
           io.to(game.gameId).emit("updateGameState", game);
           console.log(game);
         }
