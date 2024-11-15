@@ -37,27 +37,13 @@ export const addUserToGameService = async (gameId, userId) => {
     game.participants.push({ userId });
 
     if (game.participants.length === 2) {
-      game.status = "closed";
+      game.status = "full";
     }
-
     await game.save();
 
     return game;
   } catch (error) {
     console.error("Error adding user to game:", error);
-    throw error;
-  }
-};
-
-export const getUserGame = async (userId) => {
-  try {
-    const game = await Game.findOne({ "participants.userId": userId });
-    if (!game) {
-      throw new Error("User is not in any game");
-    }
-    return game;
-  } catch (error) {
-    console.error("Error fetching user's game:", error);
     throw error;
   }
 };

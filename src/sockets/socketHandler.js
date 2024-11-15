@@ -1,9 +1,4 @@
-import { get } from "mongoose";
-import { getOpenGames, createNewGame, addUserToGameService, getUserGame } from "../services/gameService.js";
-
-// `fetchOpenGames` fetch games with status "open"
-//  `createNewGame` create new game object with user inside
-//   `addUserToGameService` if a game is open, push user in participants
+import { getOpenGames, createNewGame, addUserToGameService } from "../services/gameService.js";
 
 const socketHandler = (io) => {
   console.log("socketHandler initialized");
@@ -30,20 +25,29 @@ const socketHandler = (io) => {
         }
         socket.join(game.gameId);
 
+        io.to(game.gameId).emit("updateGameState", game);
+
         const room = io.sockets.adapter.rooms.get(game.gameId);
         const numberOfClients = room ? room.size : 0;
         console.log(`Number of clients in ${game.gameId} ${numberOfClients}`);
 
-        if (numberOfClients) {
-          // Emit the updated game state to all participants
-          io.to(game.gameId).emit("updateGameState", game);
-          console.log(game);
-        }
+        // if (numberOfClients === 2) {
+        //   // Emit the updated game state to all participants
+        //   console.log(game.status, "GAME STATUS");
+        //   io.to(game.gameId).emit("beginRace");
+        //   console.log(game);
+        // }
+
+        console.log(numberOfClients);
       } catch (error) {
         socket.emit("error", {
           message: error.message || "Failed to join game",
         });
       }
+    });
+
+    socket.on("gameData", ({ gameState }) => {
+      console.log("recieved gameId:", { gameState });
     });
 
     socket.on("cursorUpdate", ({ gameId, userId, cursorIndex }) => {
