@@ -1,14 +1,8 @@
 import express from "express";
-import {
-  createNewGameHandler,
-  addUserToGameHandler,
-  getOpenGamesHandler,
-} from "../controllers/gameController.js";
+import { findOrCreateGameHandler } from "../controllers/gameController.js";
 
 const router = express.Router();
 
-router.get("/open", getOpenGamesHandler);
-router.post("/create", createNewGameHandler);
-router.post("/addUser", addUserToGameHandler);
+router.post("/findOrCreate", findOrCreateGameHandler);
 
 export default router;
