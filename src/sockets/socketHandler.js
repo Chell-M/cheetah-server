@@ -29,6 +29,16 @@ const socketHandler = (io) => {
       }
     });
 
+    socket.on("cursorUpdate", ({ gameId, userId, cursorIndex }) => {
+      if (!gameId || !userId) {
+        console.error("Missing gameId or userId for cursor update");
+        return;
+      }
+
+      // Broadcast the cursor position to other participants in the game room
+      socket.to(gameId).emit("opponentCursor", { cursorIndex });
+    });
+
     // if (!game) {
     //   socket.on("gameData", ({ gameState }) => {
     //     console.log(gameState);
