@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 
 const gameSchema = new mongoose.Schema({
   gameId: { type: String, required: true },
-
   participants: [
     {
       userId: { type: String, required: true },
