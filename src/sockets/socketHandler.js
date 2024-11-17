@@ -1,4 +1,5 @@
 import { findOrCreateGame } from "../services/gameService.js";
+import { saveGameResultsToMongo } from "../services/mongoService.js";
 
 const socketHandler = (io) => {
   console.log("socketHandler initialized");
@@ -34,9 +35,22 @@ const socketHandler = (io) => {
         console.error("Missing gameId or userId for cursor update");
         return;
       }
-
       // Broadcast the cursor position to other participants in the game room
       socket.to(gameId).emit("opponentCursor", { cursorIndex });
+    });
+
+    socket.on("submitResults", async ({ results, gameId }) => {
+      console.log("submitted results:", results, gameId);
+
+      // Save the results to the database
+      const updatedGame = await saveGameResultsToMongo(gameId, results);
+      io.to(gameId).emit("updateGameState", updatedGame);
+      console.log("saved game results", saveGameResultsToMongo);
+
+      // If all participants have submitted results, emit the raceFinished event
+      if (updatedGame.results.length === updatedGame.participants.length) {
+        io.to(gameId).emit("raceFinished", updatedGame.results);
+      }
     });
 
     // if (!game) {
