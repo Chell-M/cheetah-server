@@ -7,6 +7,7 @@ import gameRoutes from "./src/routes/gameRoutes.js";
 import socketHandler from "./src/sockets/socketHandler.js";
 import http from "http";
 import { Server } from "socket.io";
+import { instrument } from "@socket.io/admin-ui";
 
 dotenv.config();
 
@@ -34,6 +35,12 @@ const io = new Server(server, {
     credentials: true,
   },
   path: "/socket.io",
+});
+
+//for socket.io debugging
+instrument(io, {
+  auth: false,
+  mode: "",
 });
 
 socketHandler(io);
