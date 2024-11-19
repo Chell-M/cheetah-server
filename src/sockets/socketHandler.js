@@ -40,6 +40,7 @@ const socketHandler = (io) => {
       console.log("submitted results:", results, gameId);
 
       const updatedGame = await saveGameResultsToMongo(gameId, results);
+
       io.to(gameId).emit("updateGameState", updatedGame);
       console.log("saved game results", saveGameResultsToMongo);
 
@@ -56,7 +57,8 @@ const socketHandler = (io) => {
       }
     });
 
-    socket.on("resetGame", () => {
+    socket.on("resetGame", (gameId) => {
+      io.in(gameId).socketsLeave(gameId);
       socket.disconnect();
       console.log("User reset game and left all rooms:", socket.id);
     });
