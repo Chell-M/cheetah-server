@@ -15,9 +15,7 @@ const socketHandler = (io) => {
       try {
         const game = await findOrCreateGame(userId);
         console.log(`User ${userId} joined game ${game.gameId}`);
-
         socket.join(game.gameId);
-
         io.to(game.gameId).emit("updateGameState", game);
 
         if (game.status === "full") {
@@ -30,51 +28,39 @@ const socketHandler = (io) => {
       }
     });
 
-    socket.on("cursorUpdate", ({ gameId, userId, cursorIndex }) => {
-      if (!gameId || !userId) {
+    socket.on("cursorUpdate", ({ gameId, cursorIndex }) => {
+      if (!gameId) {
         console.error("Missing gameId or userId for cursor update");
         return;
       }
-      // Broadcast the cursor position to other participants in the game room
       socket.to(gameId).emit("opponentCursor", { cursorIndex });
     });
 
     socket.on("submitResults", async ({ results, gameId }) => {
       console.log("submitted results:", results, gameId);
-
-      // Save the results to the database
       const updatedGame = await saveGameResultsToMongo(gameId, results);
+
       io.to(gameId).emit("updateGameState", updatedGame);
       console.log("saved game results", saveGameResultsToMongo);
 
-      // If all participants have submitted results, emit the raceFinished event
       if (updatedGame.results.length === updatedGame.participants.length) {
         io.to(gameId).emit("raceFinished", updatedGame.results);
       }
     });
 
-    // if (!game) {
-    //   socket.on("gameData", ({ gameState }) => {
-    //     console.log(gameState);
-    //     game = gameState;
-    //     console.log(game, "game");
-    //   });
-    // }
+    socket.on("listRooms", () => {
+      console.log("Listing all rooms:");
+      for (const [room, sockets] of io.sockets.adapter.rooms) {
+        if (io.sockets.adapter.sids.get(room)) continue;
+        console.log(`Room: ${room}, Sockets: ${Array.from(sockets)}`);
+      }
+    });
 
-    // if (numberOfClients === 2) {
-    //   // Emit the updated game state to all participants
-    //   console.log(game.status, "GAME STATUS");
-    //   io.to(game.gameId).emit("beginRace");
-    //   console.log(game);
-    // }
-
-    // socket.on("cursorUpdate", ({ gameId, userId, cursorIndex }) => {
-    //   socket.to(gameId).emit("cursorUpdate", { userId, cursorIndex });
-    // });
-
-    // socket.on("gameResults", ({ gameId, results }) => {
-    //   io.to(gameId).emit("gameResults", results);
-    // });
+    socket.on("resetGame", (gameId) => {
+      io.in(gameId).socketsLeave(gameId);
+      socket.disconnect();
+      console.log("User reset game and left all rooms:", socket.id);
+    });
   });
 };
 
