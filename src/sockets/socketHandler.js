@@ -28,8 +28,8 @@ const socketHandler = (io) => {
       }
     });
 
-    socket.on("cursorUpdate", ({ gameId, userId, cursorIndex }) => {
-      if (!gameId || !userId) {
+    socket.on("cursorUpdate", ({ gameId, cursorIndex }) => {
+      if (!gameId) {
         console.error("Missing gameId or userId for cursor update");
         return;
       }
@@ -38,7 +38,6 @@ const socketHandler = (io) => {
 
     socket.on("submitResults", async ({ results, gameId }) => {
       console.log("submitted results:", results, gameId);
-
       const updatedGame = await saveGameResultsToMongo(gameId, results);
 
       io.to(gameId).emit("updateGameState", updatedGame);
