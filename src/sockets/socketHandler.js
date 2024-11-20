@@ -28,8 +28,8 @@ const socketHandler = (io) => {
       }
     });
 
-    socket.on("cursorUpdate", ({ gameId, cursorIndex }) => {
-      if (!gameId) {
+    socket.on("cursorUpdate", ({ gameId, cursorIndex, userId }) => {
+      if (!gameId || !userId) {
         console.error("Missing gameId or userId for cursor update");
         return;
       }

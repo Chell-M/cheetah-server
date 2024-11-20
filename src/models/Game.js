@@ -18,6 +18,7 @@ const gameSchema = new mongoose.Schema({
     },
   ],
   status: { type: String, default: "open" },
+  words: { type: String, required: true },
 });
 
 const Game = mongoose.model("Game", gameSchema);
