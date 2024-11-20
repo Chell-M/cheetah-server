@@ -1,5 +1,6 @@
 import Game from "../models/Game.js";
 import { v4 as uuidv4 } from "uuid";
+import { generateWordSequence } from "../utils/wordShuffler.js";
 
 export const findOrCreateGame = async (userId) => {
   try {
@@ -12,6 +13,7 @@ export const findOrCreateGame = async (userId) => {
         gameId,
         participants: [{ userId }],
         status: "open",
+        words: generateWordSequence(25),
       });
       console.log("no open games found, Created new Game:", game.gameId);
     } else {
