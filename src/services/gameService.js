@@ -2,7 +2,7 @@ import Game from "../models/Game.js";
 import { v4 as uuidv4 } from "uuid";
 import { generateWordSequence } from "../utils/wordShuffler.js";
 
-export const findOrCreateGame = async (userId) => {
+export const findOrCreateGame = async (username) => {
   try {
     let game = await Game.findOne({ status: "open" });
     console.log("Open games:", game);
@@ -11,7 +11,7 @@ export const findOrCreateGame = async (userId) => {
       const gameId = uuidv4();
       game = new Game({
         gameId,
-        participants: [{ userId }],
+        participants: [{ username }],
         status: "open",
         words: generateWordSequence(25),
       });
@@ -20,7 +20,7 @@ export const findOrCreateGame = async (userId) => {
       if (game.participants.length >= 2) {
         throw new Error("Game is already full");
       }
-      game.participants.push({ userId });
+      game.participants.push({ username });
 
       if (game.participants.length === 2) {
         game.status = "full";

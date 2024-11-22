@@ -4,14 +4,14 @@ const gameSchema = new mongoose.Schema({
   gameId: { type: String, required: true },
   participants: [
     {
-      userId: { type: String, required: true },
+      username: { type: String, required: true },
       _id: false,
     },
   ],
   createdAt: { type: Date, default: Date.now },
   results: [
     {
-      userId: { type: String, required: true },
+      username: { type: String, required: true },
       wpm: { type: Number, required: true },
       accuracy: { type: Number, required: true },
       isWinner: { type: Boolean, default: false },
@@ -19,6 +19,7 @@ const gameSchema = new mongoose.Schema({
   ],
   status: { type: String, default: "open" },
   words: { type: String, required: true },
+  statsUpdated: { type: Boolean, default: false },
 });
 
 const Game = mongoose.model("Game", gameSchema);
