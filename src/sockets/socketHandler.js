@@ -19,7 +19,9 @@ const socketHandler = (io) => {
         io.to(game.gameId).emit("updateGameState", game);
 
         if (game.status === "full") {
-          io.to(game.gameId).emit("beginRace");
+          setTimeout(() => {
+            io.to(game.gameId).emit("beginRace");
+          }, 3000);
         }
       } catch (error) {
         socket.emit("error", {
