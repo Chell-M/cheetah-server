@@ -4,6 +4,7 @@ import cors from "cors";
 import connectDB from "./src/config/db.js";
 import authRoutes from "./src/routes/authRoutes.js";
 import gameRoutes from "./src/routes/gameRoutes.js";
+import profileRoutes from "./src/routes/profileRoutes.js";
 import socketHandler from "./src/sockets/socketHandler.js";
 import http from "http";
 import { Server } from "socket.io";
@@ -26,6 +27,7 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/games", gameRoutes);
+app.use("/api", profileRoutes);
 
 const server = http.createServer(app);
 const io = new Server(server, {
