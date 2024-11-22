@@ -1,5 +1,4 @@
 import Game from "../models/Game.js";
-import User from "../models/User.js";
 
 export const saveGameResultsToMongo = async (gameId, result) => {
   try {

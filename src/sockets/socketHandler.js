@@ -11,10 +11,10 @@ const socketHandler = (io) => {
       console.log("User disconnected:", socket.id);
     });
 
-    socket.on("joinGame", async ({ userId }) => {
+    socket.on("joinGame", async ({ username }) => {
       try {
-        const game = await findOrCreateGame(userId);
-        console.log(`User ${userId} joined game ${game.gameId}`);
+        const game = await findOrCreateGame(username);
+        console.log(`User ${username} joined game ${game.gameId}`);
         socket.join(game.gameId);
         io.to(game.gameId).emit("updateGameState", game);
 
@@ -30,8 +30,8 @@ const socketHandler = (io) => {
       }
     });
 
-    socket.on("cursorUpdate", ({ gameId, cursorIndex, userId }) => {
-      if (!gameId || !userId) {
+    socket.on("cursorUpdate", ({ gameId, cursorIndex, username }) => {
+      if (!gameId || !username) {
         console.error("Missing gameId or userId for cursor update");
         return;
       }
