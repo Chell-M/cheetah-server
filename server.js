@@ -4,6 +4,7 @@ import cors from "cors";
 import connectDB from "./src/config/db.js";
 import authRoutes from "./src/routes/authRoutes.js";
 import gameRoutes from "./src/routes/gameRoutes.js";
+import leaderboardRoutes from "./src/routes/leaderboardRoutes.js";
 import profileRoutes from "./src/routes/profileRoutes.js";
 import socketHandler from "./src/sockets/socketHandler.js";
 import http from "http";
@@ -28,6 +29,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/games", gameRoutes);
 app.use("/api", profileRoutes);
+app.use("/api", leaderboardRoutes);
 
 const server = http.createServer(app);
 const io = new Server(server, {
