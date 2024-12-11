@@ -1,6 +1,5 @@
 import User from "../models/User.js";
 
-// Fetch user profile by userId or username
 export const getUserProfile = async (req, res) => {
   const { userId, username } = req.query;
 

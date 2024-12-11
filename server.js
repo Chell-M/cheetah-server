@@ -41,7 +41,7 @@ const io = new Server(server, {
   path: "/socket.io",
 });
 
-//for socket.io debugging
+//socket.io debugging
 instrument(io, {
   auth: false,
   mode: "",
