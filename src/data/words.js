@@ -1,4 +1,3 @@
-// cheetah-server/src/data/words.js
 const wordsArray = [
   "the",
   "be",

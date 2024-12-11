@@ -50,9 +50,7 @@ const socketHandler = (io) => {
           updatedGame.statsUpdated = true;
           await updatedGame.save();
           console.log(`User statistics updated for gameId: ${gameId}`);
-
           io.to(gameId).emit("raceFinished", updatedGame.results);
-          console.log(`Race finished for gameId: ${gameId}`);
         }
       } catch (error) {
         console.error("Error in submitResults:", error);
@@ -67,14 +65,6 @@ const socketHandler = (io) => {
       socket.disconnect();
       console.log("User reset game and left all rooms:", socket.id);
     });
-
-    // socket.on("listRooms", () => {
-    //   console.log("Listing all rooms:");
-    //   for (const [room, sockets] of io.sockets.adapter.rooms) {
-    //     if (io.sockets.adapter.sids.get(room)) continue;
-    //     console.log(`Room: ${room}, Sockets: ${Array.from(sockets)}`);
-    //   }
-    // });
   });
 };
 

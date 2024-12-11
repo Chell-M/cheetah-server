@@ -1,4 +1,3 @@
-// models/LeaderboardEntry.js
 import mongoose from "mongoose";
 
 const leaderboardSchema = new mongoose.Schema({
@@ -8,4 +7,5 @@ const leaderboardSchema = new mongoose.Schema({
 leaderboardSchema.index({ wpm: -1 });
 
 const Leaderboard = mongoose.model("Leaderboard", leaderboardSchema);
+
 export default Leaderboard;
