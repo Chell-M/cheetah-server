@@ -5,7 +5,6 @@ import { generateWordSequence } from "../utils/wordShuffler.js";
 export const findOrCreateGame = async (username) => {
   try {
     let game = await Game.findOne({ status: "open" });
-    console.log("Open games:", game);
 
     if (!game) {
       const gameId = uuidv4();
@@ -21,7 +20,6 @@ export const findOrCreateGame = async (username) => {
         throw new Error("Game is already full");
       }
       game.participants.push({ username });
-
       if (game.participants.length === 2) {
         game.status = "full";
       }
