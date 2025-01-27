@@ -20,7 +20,7 @@ export const updateLeaderboard = async (req, res) => {
   try {
     const date = new Date(); // Set the current date
     const existingEntry = await Leaderboard.findOne({ username });
-
+    console.log("Fetching leaderboard data from MongoDB");
     if (existingEntry) {
       if (wpm > existingEntry.wpm) {
         existingEntry.wpm = wpm;
