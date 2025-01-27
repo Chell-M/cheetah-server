@@ -68,9 +68,11 @@ export const updateUserStats = async (results, gameId) => {
 
         if (existingLeaderboardEntry) {
           existingLeaderboardEntry.wpm = user.userStats.highestWPM;
+          console.log(existingLeaderboardEntry, "user already has existing");
           await existingLeaderboardEntry.save();
         } else {
           const newLeaderboardEntry = new Leaderboard({ username: user.username, wpm: user.userStats.highestWPM });
+          console.log(newLeaderboardEntry, "new leader board entry");
           await newLeaderboardEntry.save();
         }
       }
